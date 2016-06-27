@@ -24,6 +24,9 @@ platform :ios do
         CRASHLYTICS[:testers]["tester_#{i}"] = t
       end
     end
+    testers = CRASHLYTICS[:testers].values.uniq
+    emails = testers.length == 1 ? testers[0] : "#{testers[0...-1].join(', ')} and #{testers[-1]}"
+    UI.success("The build will be shared to ️#{emails} ✉️")
     upload_to_crashlytics
   end
 
