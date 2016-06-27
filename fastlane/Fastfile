@@ -18,13 +18,21 @@ platform :ios do
   before_all do
   end
 
-  lane :deploy do
-    if testers = ENV["CRASHLYTICS_TESTERS"]
-      testers.split(',').each_with_index do |t,i|
+  lane :deploy do |options|
+    i = 0
+    if testers = options[:testers]
+      testers.split(',').each do |t|
         CRASHLYTICS[:testers]["tester_#{i}"] = t
+        i+=1
       end
     end
-    testers = CRASHLYTICS[:testers].values.uniq
+    if testers = ENV['CRASHLYTICS_TESTERS']
+      testers.split(',').each do |t|
+        CRASHLYTICS[:testers]["tester_#{i}"] = t
+        i+=1
+      end
+    end
+    testers = CRASHLYTICS[:testers].values.uniq.sort
     emails = testers.length == 1 ? testers[0] : "#{testers[0...-1].join(', ')} and #{testers[-1]}"
     UI.success("The build will be shared to ️#{emails} ✉️")
     upload_to_crashlytics
