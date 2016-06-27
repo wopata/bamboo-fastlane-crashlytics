@@ -19,6 +19,11 @@ platform :ios do
   end
 
   lane :deploy do
+    if testers = ENV["CRASHLYTICS_TESTERS"]
+      testers.split(',').each_with_index do |t,i|
+        CRASHLYTICS[:testers]["tester_#{i}"] = t
+      end
+    end
     upload_to_crashlytics
   end
 
@@ -35,7 +40,7 @@ def upload_to_crashlytics
     api_token: CRASHLYTICS[:api_token],
     build_secret: CRASHLYTICS[:build_secret],
     notes: CRASHLYTICS[:notes],
-    emails: CRASHLYTICS[:testers].values.join(","),
+    emails: CRASHLYTICS[:testers].values.uniq.join(","),
     notifications: CRASHLYTICS[:send_mail_notifications],
     debug: true,
   )
